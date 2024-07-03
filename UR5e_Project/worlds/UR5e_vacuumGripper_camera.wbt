@@ -1,0 +1,187 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+IMPORTABLE EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/universal_robots/protos/UR5e.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/WoodenBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/tables/protos/Table.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/devices/robotiq/protos/RobotiqEPickGripper.proto"
+IMPORTABLE EXTERNPROTO "../protos/MyRubberDuck.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/PlasticCrate.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/VarnishedPine.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
+EXTERNPROTO "../protos/TexturedObject.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/CardboardBox.proto"
+EXTERNPROTO "../protos/Can.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/computers/protos/ComputerMouse.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/kitchen/breakfast/protos/BiscuitBox.proto"
+
+WorldInfo {
+  basicTimeStep 8
+  dragForceScale 50
+  contactProperties [
+    ContactProperties {
+      material1 "slope"
+      coulombFriction [
+        0.5
+      ]
+    }
+    ContactProperties {
+      coulombFriction [
+        2
+      ]
+      bounce 0.1
+    }
+    ContactProperties {
+      material1 "ROBOTIQ gripper pad"
+      coulombFriction [
+        100
+      ]
+      bounceVelocity 0.001
+      softERP 0.1
+      softCFM 0.005
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.3380716386647709 -0.21397407946124947 0.9164729458359516 4.237762499067269
+  position 0.9874707191250709 1.938081177110147 2.193635355314364
+}
+TexturedBackground {
+  texture "empty_office"
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 8 5
+}
+WoodenBox {
+  size 0.2 0.2 0.6
+}
+UR5e {
+  translation 0 0 0.6
+  controller "cont1"
+  controllerArgs [
+    ""
+  ]
+  toolSlot [
+    RangeFinder {
+      translation 0 0.13 0
+      rotation 0.5773502691896258 0.5773502691896258 0.5773502691896258 2.09486
+      fieldOfView 1.25
+      width 640
+      height 480
+    }
+    Camera {
+      translation 0 0.13 0
+      rotation 0.5775028951944954 0.5770438952777949 0.5775038951943139 2.0948596938995747
+      fieldOfView 1.25
+      width 640
+      height 480
+    }
+    RobotiqEPickGripper {
+      rotation -3.3891510791584073e-09 0.7068252250641434 0.7073882252434113 3.14159
+    }
+    GPS {
+      translation 0 0.13 0
+      rotation 0.5773502691896258 0.5773502691896258 0.5773502691896258 2.09486
+    }
+  ]
+}
+Table {
+  translation 0.66 0 0
+  size 0.5 0.8 0.5
+  feetSize 0.05 0.05
+  trayAppearance VarnishedPine {
+    colorOverride 0.533333 0.368627 0.305882
+    textureTransform TextureTransform {
+      scale 10 10
+    }
+  }
+}
+Solid {
+  children [
+    Table {
+      translation -0.45 0 0
+      size 0.6 0.8 0.5
+      feetSize 0.04 0.04
+      trayAppearance VarnishedPine {
+        colorOverride 0.666667 0.431373 0.0196078
+        textureTransform TextureTransform {
+          scale 10 10
+        }
+      }
+    }
+  ]
+}
+Can {
+  translation -0.28 -0.19 0.53
+  rotation 0 1 0 -1.5707953071795862
+  name "can(1)"
+}
+ComputerMouse {
+  translation -0.356034 0.115911 0.497652
+  rotation -2.346409999993429e-06 3.089109999991349e-07 0.9999999999971996 -2.8797953071795863
+}
+PlasticCrate {
+  translation 0.6 -0.2 0.5
+  size 0.25 0.3 0.1
+}
+PlasticCrate {
+  translation 0.09942124103022112 0.6285331556584668 0.15661163715174867
+  rotation -0.024301367496490877 0.02461919994012807 0.9994014901590395 1.5687869175233127
+  name "plastic crate3"
+  size 0.27 0.3 0.1
+  color 0.160784 0.396078 0.901961
+  mass 0.5
+}
+PlasticCrate {
+  translation 0.6 0.2 0.5
+  name "plastic crate2"
+  size 0.25 0.3 0.1
+  color 0.352941 0.698039 0.121569
+}
+Youbot {
+  translation 0.09999658848197161 0.7601495661201346 0.10344530899305399
+  rotation -0.0003942878166779394 0.00037421999294337814 0.9999998522482463 1.5708765190277887
+}
+TexturedObject {
+  translation -0.431507 0.254903 0.5
+  rotation 0.7745972141184518 0.44721212362085194 0.44721412362140484 1.82348
+  scale 0.015 0.015 0.015
+  objUrl [
+    "../protos/objects/nokia1/MobileNokiaC5.obj"
+  ]
+  textureUrl [
+    "../protos/objects/nokia1/Mobile.jpg"
+  ]
+  boundingBoxSize 0.05 0.012 0.12
+  meshOffsetTranslation 0 -0.3 0
+  physics Physics {
+    mass 0.1
+  }
+}
+CardboardBox {
+  translation -0.615 0.276699 0.55
+  rotation 0 0 1 0.523599
+  size 0.1 0.1 0.1
+  mass 0.3
+}
+CardboardBox {
+  translation -0.652263 0.0421287 0.55
+  rotation 0 0 1 1.8326
+  name "cardboard box2"
+  size 0.08 0.08 0.1
+  mass 0.3
+}
+BiscuitBox {
+  translation -0.44 -0.04 0.5
+  size 0.04 0.12 0.03
+}
+BiscuitBox {
+  translation -0.5 -0.27 0.52
+  rotation 0 1 0 1.5708
+  name "biscuit box(1)"
+  size 0.04 0.12 0.03
+}
