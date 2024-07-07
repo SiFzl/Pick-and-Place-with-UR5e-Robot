@@ -10,7 +10,9 @@ from torchvision import transforms
 from PIL import Image
 import numpy as np
 from controller import Robot, VacuumGripper ,  Motor , Camera, RangeFinder
-
+    
+    
+    
 # create the Robot instance.
 robot = Robot()
 
@@ -84,8 +86,7 @@ def invKine(desired_pos):  # T60
     # **** theta1 ****
 
     psi = atan2(P_05[1, 0], P_05[0, 0])
-    phi = acos(d4 / sqrt(P_05[1, 0]**2 + P_05[0, 0]**2))
-   
+    phi = float(np.arccos(float(d4) / float(np.sqrt( P_05[1, 0]**2 + P_05[0, 0]**2,dtype = np.float32))))
     # The two solutions for theta1 correspond to the shoulder being either left or right
     th[0, 0:4] = pi/2 + psi + phi
     th[0, 4:8] = pi/2 + psi - phi
@@ -236,7 +237,7 @@ class UR5e:
 
     def get_EE_position(self):
         return self.gps.value
-       
+        
 def delay(ms):
         initTime = robot.getTime()      # Store starting time (in seconds)
         while robot.step(TIME_STEP ) != -1:
@@ -245,7 +246,7 @@ def delay(ms):
 
 
 ######################################################################
-           
+            
 model = YOLO("/home/dorsa/Robotics/ai-in-robotics-course-project-AUT2024-main/UR5e_Project/best(1).pt")
 
 
@@ -253,7 +254,7 @@ model = YOLO("/home/dorsa/Robotics/ai-in-robotics-course-project-AUT2024-main/UR
 ur5 = UR5e()
 
 t_ms = 0
-img = get_rgb_frame()  
+img = get_rgb_frame()   
 
 # depth = get_depth_frame()
 # ur5.set_gripper_pos(state = 'off')
@@ -263,7 +264,7 @@ img = get_rgb_frame()
 
 a1 = [-1.94,0.23,-0.9 ,1.27,-1.6,-1.33]
 ur5.set_arm_pos(a1)
-img = get_rgb_frame()
+img = get_rgb_frame() 
 
 transform = transforms.ToTensor()
 img_tensor = transform(img).unsqueeze(0)
@@ -292,16 +293,16 @@ for i,(box, label, confidence) in enumerate(zip(boxes, labels, confidences)):
       z_real = 0.1
     elif label == "soda":
       label = 2
-      z_real = 0.05
+      z_real = 0.15
     elif label == "mobile":
       label = 3
-      z_real = 0.03
+      z_real = 0.025
     elif label == "biscuite_box":
       label = 4
-      z_real = 0
+      z_real = 0.05
     elif label == "mouse":
       label = 5
-      z_real = 0.05
+      z_real = 0.04
     x, y, w, h = box[:4]
     x = float(x)
     y = float(y)
@@ -310,105 +311,125 @@ for i,(box, label, confidence) in enumerate(zip(boxes, labels, confidences)):
 
 
     # Calculate center of bounding box
-    center_x = x + w / 2
-    center_y = y + h / 2
+    center_x = (x + w)/ 2
+    center_y = (y + h) / 2
+    
 
+    
     a = (1/2)-(center_x/640)
-    b = (1/2)-(center_y/480)
+    b = (-1/2 )+(center_y/480)
 
-    x_real = -((b*0.577)+0.4485)
-    y_real = a*0.77
-
+    x_real = -(b*0.577)-0.45
+    y_real = a*0.788
+    
+    
     arr[i][0] = label
     arr[i][1] = float(x_real)
     arr[i][2] = float(y_real)
     arr[i][3] = float(z_real)
-   
-   
+    
+    
     print(f"Box: {box}, Label: {label}, Confidence: {confidence},center_x: {center_x}, center_y: {center_y}")
 print(arr)
 
-
-for i,ar in enumerate(arr):
-
-    delay(3000)
-    x = ar[1]
-    y = ar[2]
-    z = ar[3]
-
-    position = np.array([[1, 0, 0, x], [0, -1, 0, y], [0, 0, -1, z], [0, 0, 0, 1]],dtype = np.float32)
-    ik_results = invKine(position)
-    pos = np.take(ik_results, indices=[2], axis=0)
-    if pos[0,0] >= 0 :
-        pos[0,0] -= 3.14
-    else:
-        pos[0,0] += 3.14
-
-    pos_3 = [pos[0,1], pos[0,0], pos[0,2], pos[0,3], pos[0,4], pos[0,5]]
-    pos_2 = [-1.94, pos[0,0], pos[0,2], pos[0,3], pos[0,4], pos[0,5]]
-   
-    a1 = [-1.94,0.23,-0.9 ,1.27,-1.6,-1.33]
-    ur5.set_arm_pos(a1)
-    delay(2000)
-    ur5.set_arm_pos(pos_2)
-    delay(2000)
-    ur5.set_arm_pos(pos_3)
-    delay(2000)
-    ur5.set_gripper_pos(state = 'on')
-
-
-
-    ##############
-    # 4,2 => Green
-    # 1 => Blue
-    # 5,3 => Red
-    ##############
-
-   
-    if ar[0] == 1:
-        #Pick : done
-
-        #Place
-        delay(1000)
-        Bbox = [ -1.1,1.3,1.2,-1.57,-1.57,0]  
-        ur5.set_arm_pos(Bbox)
-        delay(1000)  
-        Bbox = [-0.5,1.3,1.6,-2.7,-1.57,0]
-        ur5.set_arm_pos(Bbox)
-        ur5.set_gripper_pos(state = 'off')
-
-    elif ar[0] == 2:
-        #Pick : done
-
-        #Place
-        delay(2000)    
-        Gbox = [ -0.9,0.1,1.2,-1.57,-1.57,0]
-        ur5.set_arm_pos(Gbox)
-        ur5.set_gripper_pos(state = 'off')
-
-    elif ar[0] == 3:
-        #Pick : done
-
-        #Place
+if arr[0][0] != 0:
+    for i,ar in enumerate(arr):
+    
+        delay(3000)
+        x = ar[1]
+        y = ar[2]
+        z = ar[3]
+    
+        position = np.array([[1, 0, 0, x], [0, -1, 0, y], [0, 0, -1, z], [0, 0, 0, 1]],dtype = np.float32)
+        ik_results = invKine(position)
+        pos = np.take(ik_results, indices=[2], axis=0)
+        if pos[0,0] >= 0 :
+            pos[0,0] -= 3.14
+        else:
+            pos[0,0] += 3.14
+    
+        pos_3 = [pos[0,1], pos[0,0], pos[0,2], pos[0,3], pos[0,4], pos[0,5]]
+        pos_2 = [-1.94, pos[0,0], pos[0,2], pos[0,3], pos[0,4], pos[0,5]]
+        
+        a1 = [-1.94,0.23,-0.9 ,1.27,-1.6,-1.33]
+        ur5.set_arm_pos(a1)
         delay(2000)
-        Rbox = [ -0.9,-0.5,1.2,-1.57,-1.57,0]
-        ur5.set_arm_pos(Rbox)
-        ur5.set_gripper_pos(state = 'off')
-       
-    elif ar[0] == 4:
-        #Pick : done
-
-        #Place
-        delay(2000)    
-        Gbox = [ -0.9,0.1,1.2,-1.57,-1.57,0]
-        ur5.set_arm_pos(Gbox)
-        ur5.set_gripper_pos(state = 'off')
-
-    elif arr[0] == 5:
-        #Pick : done
-
-        #Place
+        ur5.set_arm_pos(pos_2)
         delay(2000)
-        Rbox = [ -0.9,-0.5,1.2,-1.57,-1.57,0]
-        ur5.set_arm_pos(Rbox)
-        ur5.set_gripper_pos(state = 'off')
+        ur5.set_arm_pos(pos_3)
+        delay(2000)
+        ur5.set_gripper_pos(state = 'on')
+        delay(2000)
+    
+    
+    
+        ##############
+        # 4,2 => Green
+        # 1 => Blue
+        # 5,3 => Red
+        ##############
+    
+        
+        if ar[0] == 1:
+            #Pick : done
+    
+            #Place
+            delay(1000) 
+            Bbox = [ -1.1,1.3,1.2,-1.57,-1.57,0]  
+            ur5.set_arm_pos(Bbox)
+            delay(1000)  
+            Bbox = [-0.5,1.3,1.6,-2.7,-1.57,0]
+            ur5.set_arm_pos(Bbox)
+            ur5.set_gripper_pos(state = 'off')
+    
+        elif ar[0] == 2:
+            #Pick : done
+    
+            #Place
+            delay(2000)
+            Gbox = [ -1.1,0.1,1.2,-1.57,-1.57,0]  
+            ur5.set_arm_pos(Gbox)
+            delay(1000)      
+            Gbox = [ -0.9,0.1,1.2,-1.57,-1.57,0]
+            ur5.set_arm_pos(Gbox)
+            ur5.set_gripper_pos(state = 'off')
+    
+        elif ar[0] == 3:
+            #Pick : done
+    
+            #Place
+            delay(2000)
+            Rbox = [ -1.1,-0.5,1.2,-1.57,-1.57,0]  
+            ur5.set_arm_pos(Rbox)
+            delay(1000)
+            Rbox = [ -0.9,-0.5,1.2,-1.57,-1.57,0]
+            ur5.set_arm_pos(Rbox)
+            ur5.set_gripper_pos(state = 'off')
+            
+        elif ar[0] == 4:
+            #Pick : done
+    
+            #Place
+            delay(2000)    
+            Gbox = [ -1.1,0.1,1.2,-1.57,-1.57,0]  
+            ur5.set_arm_pos(Gbox)
+            delay(1000)
+            Gbox = [ -0.9,0.1,1.2,-1.57,-1.57,0]
+            ur5.set_arm_pos(Gbox)
+            ur5.set_gripper_pos(state = 'off')
+    
+        elif ar[0] == 5:
+            #Pick : done
+    
+            #Place
+            delay(2000)
+            Rbox = [ -1.1,-0.5,1.2,-1.57,-1.57,0]  
+            ur5.set_arm_pos(Rbox)
+            delay(1000)
+            Rbox = [ -0.9,-0.5,1.2,-1.57,-1.57,0]
+            ur5.set_arm_pos(Rbox)
+            ur5.set_gripper_pos(state = 'off')
+
+delay(2000)           
+ur5.set_gripper_pos(state = 'off')
+delay(2000)
